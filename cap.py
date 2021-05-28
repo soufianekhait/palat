@@ -1,85 +1,56 @@
 from math import sin, cos           # math functions
 from scipy import integrate         # grab integrate functions
 import numpy as np                  # grab all of the NumPy functions
-from config import g                # global variables
+from config import DEG2RAD, TAUPHI, TAUPSI, g                # global variables
 from control.matlab import *        # MATLAB-like functions
 from receiver import recorded_data  # output dictionnary
 import sympy as sym                 # 
 
 
 # Equilibrium variables of interest
-ve = recorded_data["StateVector"]["Vp"]     # speed
-fpae = recorded_data["StateVector"]["fpa"]  # flight path angle
-hdge = recorded_data["StateVector"]["psi"]  # heading
-phie = recorded_data["StateVector"]["phi"]  # bank angle
-nxe = sin(fpae)                             # load factor X
-nze = cos(fpae)/cos(phie)                   # load factor Z
-pe = 0                                      # roll rate
-
-# time in ms
-t0 = 0
-T = 150
-N = 1000
+v = recorded_data["StateVector"]["Vp"]     # speed m/s
+fpa = recorded_data["StateVector"]["fpa"]  # flight path angle in radian
+hdg = recorded_data["StateVector"]["psi"]  # heading in radian
+phi = recorded_data["StateVector"]["phi"]  # bank angle in radian
 
 
-# Equilibrium vector of interest
-xe = np.array([[ve], [fpae], [hdge], [phie]])     # equilibrium state vector 
-ue = np.array([[nxe], [nze], [pe]])               # equilibrium command vector
+def sendRollRate():
+    # check if Mode is Managed
+    if int(recorded_data["FCU"]["Mode"]) == 0:
+        x = recorded_data["FGS"]["Point"].x
+        y = recorded_data["FGS"]["Point"].y
+        hdgC = recorded_data["FGS"]["trueHeading"]
+        computeRollRate(axis=[x, y, hdgC], track=None, heading=None)
+    if int(recorded_data["FCU"]["Track"]) is not None:
+        computeRollRate(axis=None, track=int(recorded_data["FCU"]["Track"]), heading=None)
+    if int(recorded_data["FCU"]["Heading"]) is not None:
+        computeRollRate(axis=None, track=None, heading=int(recorded_data["FCU"]["Heading"]))
 
-"""
-#Derivatives of multivariable function
-v, gamma, psi, phi = sym.symbols('v gamma psi phi')
-f = g * (nxe - sin(fpa))
- 
-#Differentiating partially w.r.t y
-derivative_f = f.diff(v)
-print(derivative_f)
-
-
-# Compute State Vector
-
-def computeStateVector(nxe, nz, p):
-    vDot = g * (nx - sin(fpa))
-    fpaDot = g/v * (nz * cos(phi) - cos(fpa))
-    psiDot = g / (v * cos(fpa)) * nz * sin(phi)
-    phiDot = p
-    return np.array([[vDot], [fpa], [psiDot], [phiDot]])
+    recorded_data["StateVector"]["x"] = None
+    recorded_data["StateVector"]["y"] = None
+    recorded_data["StateVector"]["z"] = None
+    recorded_data["StateVector"]["psi"] = None
+    recorded_data["StateVector"]["Vp"] = None
+    recorded_data["StateVector"]["phi"] = None
+    recorded_data["StateVector"]["fpa"] = None
 
 
-# Capture Heading
-def captureHDG():
-    computeStateVector()
+def checkBoundaries(value):
+    min = recorded_data["RollRate"]["Min"]
+    max = recorded_data["RollRate"]["Max"]
+    
+    if value >= min and value <= max:
+        return value
+    elif value > max:
+        return max
+    else:
+        return min
+        
 
-"""
-
-
-# Define parameters
-# Functions
-vDot = lambda fpa, nx: g * (nx - sin(fpa))
-fpaDot = lambda fpa, phi, nz, v: g/v * (nz * cos(phi) - cos(fpa))
-psiDot = lambda v, fpa, nz, phi: g / (v * cos(fpa)) * nz * sin(phi)
-phiDot = p
-
-h = (T-t0)/N                      # Step size
-t = np.arange(0, 1 + h, h)        # Numerical grid
-# Initial Conditions
-v0 = ve
-hdg0 = hdge
-fpa0 = fpae
-phi0 = phie
-
-# Explicit Euler Method
-v = np.zeros(len(t))
-fpa = np.zeros(len(t))
-hdg = np.zeros(len(t))
-phi = np.zeros(len(t))
-v[0] = v0
-fpa[0] = fpa0
-hdg[0] = hdg0
-phi[0] = phi0
-
-
-for i in range(0, len(t) - 1):
-    v[i + 1] = v[i] + h*vDot(fpa[i], nxe)
-    fpa[i + 1] = fpa[i] + h*fpaDot(fpa[i], phi[i], nze, v[i])
-    psi[i + 1] = psi[i] + h*psiDot(v[i], fpa[i], nze, phi[i])
+def computeRollRate(**modes):
+    
+    for m in modes:
+        if modes[m] is not None:
+            if m == "heading":
+                return checkBoundaries(((v*(modes[m] - hdg)/(TAUPSI*g)) - phi) / TAUPHI)    # rollRate in radian
+            
