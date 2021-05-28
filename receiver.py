@@ -1,25 +1,26 @@
 from ivy.std_api import IvyInit, IvyStart, IvyBindMsg, IvyMainLoop
 
-recorded_data = {"FCU": {}, "FGS": {"Point": {}}, "StateVector": {}, "Wind": {}, "RollRate": {}}
+recorded_data = {"FCU": {"Heading": None, "Track": None, "Mode": None}, 
+"FGS": {"trueHeading": None, "Point": {"x": None, "y": None}}, "StateVector": {"x": None, "y": None, "z": None, "fpa": None, "psi": None, "phi": None}, "Wind": {"Speed": None, "Dir": None}, "RollRate": {}}
 null_cb = lambda *a: None
 app_name = "Receiver"
 
 
 def getFCUHeading(agent, *data):
     global recorded_data
-    recorded_data["FCU"]["Heading"] = data[0] if len(data) > 0 else None
+    recorded_data["FCU"]["Heading"] = data[0]
     print("FCU Heading: " + recorded_data["FCU"]["Heading"])
 
 
 def getFCUTrack(agent, *data):
     global recorded_data
-    recorded_data["FCU"]["Track"] = data[0] if len(data) > 0 else None
+    recorded_data["FCU"]["Track"] = data[0]
     print("FCU Track: " + recorded_data["FCU"]["Track"])
     
 
 def getFCUMode(agent, *data):
     global recorded_data
-    recorded_data["FCU"]["Mode"] = data[0] if len(data) > 0 else None
+    recorded_data["FCU"]["Mode"] = data[0]
     print("Selected Mode: " + recorded_data["FCU"]["Mode"])
 
 
@@ -37,7 +38,7 @@ def getStateVector(agent, *data):
 
 def getFGSTrueHeading(agent, *data):
     global recorded_data
-    recorded_data["FGS"]["trueHeading"] = data[0] if len(data) > 0 else None
+    recorded_data["FGS"]["trueHeading"] = data[0]
     print("FGS True Heading: " + recorded_data["FGS"]["trueHeading"])
     
 
@@ -77,7 +78,6 @@ IvyBindMsg(getFCUTrack, r"^FCULATERAL Mode = SelectedTrack Val =(\S+)")
 IvyBindMsg(getFCUMode, r"^FCULATERAL Mode = Managed Val =(\S+)")
 IvyBindMsg(getStateVector, r"^StateVector x=(\S+) y=(\S+) z=(\S+) Vp=(\S+) fpa=(\S+) psi=(\S+) phi=(\S+)")
 IvyBindMsg(getWind, r"^WindComponent VWind=(\S+) dirWind=(\S+)")
-#IvyBindMsg(on_msg, r"^RollLim MaxRoll =(\S+) MinRoll =(\S+) ")
 IvyBindMsg(getMagneticDeclinaison, r"^MagneticDeclinaison =(\S+)")
 IvyBindMsg(getRollRate, r"^RollRateLim  MaxRollRate =(\S+) / MinRollRate =(\S+)")
 IvyBindMsg(getFGSPoint, r"^FGS FgsPt =\((\w+),(\w+)\)")
