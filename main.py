@@ -1,7 +1,6 @@
 from ivy.std_api import IvyInit, IvyStart, IvySendMsg, IvyStop
 from time import sleep
 
-
 app_name = "Sender"
 ivy_bus = "127.255.255.255:2010"
 
