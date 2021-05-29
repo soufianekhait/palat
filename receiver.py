@@ -1,8 +1,7 @@
 from ivy.std_api import IvyInit, IvyStart, IvyBindMsg, IvyMainLoop
+from config import app_name, ivy_bus, null_cb
 
-recorded_data = {"FCU": {"Heading": None, "Track": None, "Mode": None}, 
-"FGS": {"trueHeading": None, "Point": {"x": None, "y": None}}, "StateVector": {"x": None, "y": None, "z": None, "fpa": None, "psi": None, "phi": None}, "Wind": {"Speed": None, "Dir": None}, "RollRate": {}}
-null_cb = lambda *a: None
+recorded_data = {"FCU": {"Heading": None, "Track": None, "Mode": None}, "FGS": {"trueHeading": None, "Point": {"x": None, "y": None}}, "StateVector": {"x": None, "y": None, "z": None, "fpa": None, "psi": None, "phi": None}, "Wind": {"Speed": None, "Dir": None}, "RollRate": {"Min": None, "Max": None}, "MagneticDec": None}
 app_name = "Receiver"
 
 
@@ -46,7 +45,12 @@ def getFGSPoint(agent, *data):
     global recorded_data
     recorded_data["FGS"]["Point"]["x"] = data[0]
     recorded_data["FGS"]["Point"]["y"] = data[1]
-    print("FGS Point: ({}, {})".format(recorded_data["FGS"]["Point"]["x"], recorded_data["FGS"]["Point"]["y"]))
+    
+    print("FGS Point: {}".format(recorded_data["FGS"]["Point"]))
+
+
+def neededDataIsNone():
+    recorded_data
 
 
 def getWind(agent, *data):
@@ -73,14 +77,14 @@ IvyInit(app_name, app_name + " is ready", 0, null_cb, null_cb)
 IvyStart("127.255.255.255:2010")
 
 
-IvyBindMsg(getFCUHeading, r"^FCULATERAL Mode = SelectedHeading Val =(\S+)")
-IvyBindMsg(getFCUTrack, r"^FCULATERAL Mode = SelectedTrack Val =(\S+)")
-IvyBindMsg(getFCUMode, r"^FCULATERAL Mode = Managed Val =(\S+)")
+IvyBindMsg(getFCUHeading, r"^FCULATERAL Mode = SelectedHeading Val=(\S+)")
+IvyBindMsg(getFCUTrack, r"^FCULATERAL Mode = SelectedTrack Val=(\S+)")
+IvyBindMsg(getFCUMode, r"^FCULATERAL Mode = Managed Val=(\S+)")
 IvyBindMsg(getStateVector, r"^StateVector x=(\S+) y=(\S+) z=(\S+) Vp=(\S+) fpa=(\S+) psi=(\S+) phi=(\S+)")
 IvyBindMsg(getWind, r"^WindComponent VWind=(\S+) dirWind=(\S+)")
-IvyBindMsg(getMagneticDeclinaison, r"^MagneticDeclinaison =(\S+)")
-IvyBindMsg(getRollRate, r"^RollRateLim  MaxRollRate =(\S+) / MinRollRate =(\S+)")
-IvyBindMsg(getFGSPoint, r"^FGS FgsPt =\((\w+),(\w+)\)")
-IvyBindMsg(getFGSTrueHeading, r"^FGS FgsCap =(\S+)")
+IvyBindMsg(getMagneticDeclinaison, r"^MagneticDeclinaison=(\S+)")
+IvyBindMsg(getRollRate, r"^RollRateLim  MaxRollRate=(\S+) / MinRollRate=(\S+)")
+IvyBindMsg(getFGSPoint, r"^FGS FgsPt=\((\w+),(\w+)\)")
+IvyBindMsg(getFGSTrueHeading, r"^FGS FgsCap=(\S+)")
 
 IvyMainLoop()
