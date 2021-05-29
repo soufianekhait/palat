@@ -1,17 +1,12 @@
-from math import sin, cos           # math functions
-from scipy import integrate         # grab integrate functions
-import numpy as np                  # grab all of the NumPy functions
-from config import DEG2RAD, TAUPHI, TAUPSI, g                # global variables
-from control.matlab import *        # MATLAB-like functions
-from receiver import recorded_data  # output dictionnary
-import sympy as sym                 # 
+from config import TAUPHI, TAUPSI, g            # global variables
+from receiver import recorded_data              # output dictionnary
 
 
 # Equilibrium variables of interest
-v = recorded_data["StateVector"]["Vp"]     # speed m/s
-fpa = recorded_data["StateVector"]["fpa"]  # flight path angle in radian
-hdg = recorded_data["StateVector"]["psi"]  # heading in radian
-phi = recorded_data["StateVector"]["phi"]  # bank angle in radian
+v = recorded_data["StateVector"]["Vp"]          # speed m/s
+fpa = recorded_data["StateVector"]["fpa"]       # flight path angle in radian
+hdg = recorded_data["StateVector"]["psi"]       # heading in radian
+phi = recorded_data["StateVector"]["phi"]       # bank angle in radian
 
 
 def sendRollRate():
@@ -26,13 +21,10 @@ def sendRollRate():
     if int(recorded_data["FCU"]["Heading"]) is not None:
         computeRollRate(axis=None, track=None, heading=int(recorded_data["FCU"]["Heading"]))
 
-    recorded_data["StateVector"]["x"] = None
-    recorded_data["StateVector"]["y"] = None
-    recorded_data["StateVector"]["z"] = None
-    recorded_data["StateVector"]["psi"] = None
-    recorded_data["StateVector"]["Vp"] = None
-    recorded_data["StateVector"]["phi"] = None
-    recorded_data["StateVector"]["fpa"] = None
+    # Reset State Vector dict
+    for record in recorded_data["StateVector"].values():
+        print(record)
+        record = None
 
 
 def checkBoundaries(value):
@@ -47,10 +39,9 @@ def checkBoundaries(value):
         return min
         
 
+# compute Roll Rate : the output is in radian
 def computeRollRate(**modes):
-    
     for m in modes:
         if modes[m] is not None:
             if m == "heading":
-                return checkBoundaries(((v*(modes[m] - hdg)/(TAUPSI*g)) - phi) / TAUPHI)    # rollRate in radian
-            
+                return checkBoundaries(((v*(modes[m] - hdg)/(TAUPSI*g)) - phi) / TAUPHI)
