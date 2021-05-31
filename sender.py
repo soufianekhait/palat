@@ -3,16 +3,15 @@ from time import sleep
 
 def sendData():
     while(1):
-        IvySendMsg("APLAT p=3.5")
         # for test only
-        IvySendMsg("FCULATERAL Mode = SelectedHeading Val=40")
-        IvySendMsg("FCULATERAL Mode = SelectedTrack Val=50")
-        IvySendMsg("FCULATERAL Mode = Managed Val=10")
-        IvySendMsg("StateVector x=33 y=44 z=12 Vp=120 fpa=20 psi=5 phi=5")
-        IvySendMsg("WindComponent VWind=10 dirWind=180")
-        IvySendMsg("MagneticDeclinaison=2")
+        # IvySendMsg("FCULATERAL Mode=SelectedHeading Val=50")
+        IvySendMsg("FCULATERAL Mode=SelectedTrack Val=50")
+        # IvySendMsg("FCULATERAL Mode=Managed Val=0")
+        IvySendMsg("StateVector x=33 y=44 z=12 Vp=118 fpa=20 psi=5 phi=5")
+        IvySendMsg("WindComponent VWind=5 dirWind=200")
+        IvySendMsg("MagneticDeclinaison=0")
         IvySendMsg("RollRateLim  MaxRollRate=66 / MinRollRate=0")
-        IvySendMsg("FGS FgsPt=(120,5)")
-        IvySendMsg("FGS FgsCap=120")
+        # IvySendMsg("FGS FgsPt x=120 y=5")
+        # IvySendMsg("FGS FgsCap cap=50")
         sleep(3.0)
     IvyStop()
