@@ -17,3 +17,4 @@ TPSI95 = 10             # Response time in 95% of time (seconds)
 TPHI95 = 1              
 TAUPSI = TPSI95/3
 TAUPHI = TPHI95/3
+TAUEY = 100
