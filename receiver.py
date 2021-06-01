@@ -3,7 +3,10 @@ from config import DEG2RAD, app_name, null_cb, ivy_bus, TAUPHI, TAUPSI, TAUEY, g
 from math import asin, atan2, sin, cos, pi, sqrt    # grab ain function
 
 # init all variables to zero
-recorded_data = {"FCU": {"Mode": "", "ModeValue": 0}, "FGS": {"trueHeading": 0, "Point": {"x": 0, "y": 0}}, "StateVector": {"x": 0, "y": 0, "z": 0, "Vp": 200, "fpa": 0, "psi": 0, "phi": 0}, "Wind": {"Speed": 0, "Dir": 0}, "RollRate": {"Min": 0, "Max": 0}, "MagneticDec": 0}
+recorded_data = {"FCU": {"Mode": "", "ModeValue": 0},
+                 "FGS": {"trueHeading": 0, "Point": {"x": 0, "y": 0}},
+                 "StateVector": {"x": 0, "y": 0, "z": 0, "Vp": 200, "fpa": 0, "psi": 0, "phi": 0},
+                 "Wind": {"Speed": 0, "Dir": 0}, "RollRate": {"Min": 0, "Max": 0}, "MagneticDec": 0}
 app_name = "Receiver"
 
 # variables of interest
@@ -42,6 +45,9 @@ def getStateVector(agent, *data):
 def getFGSTrueHeading(agent, *data):
     global recorded_data
     recorded_data["FGS"]["trueHeading"] = int(data[0])
+    p = sendRollRate()
+    IvySendMsg("APLAT p={}".format(p))
+    print("P sent with value {}".format(p))
     
 
 def getFGSPoint(agent, *data):
