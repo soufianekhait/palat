@@ -1,7 +1,6 @@
 from numpy import pi
 
 # bus configuration
-app_name = "Lateral Auto Pilot"
 ivy_bus = "127.255.255.255:2010"
 null_cb = lambda *a: None
 
