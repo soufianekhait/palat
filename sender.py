@@ -1,10 +1,14 @@
+#!/usr/bin/python3
 from ivy.std_api import IvySendMsg, IvyStop, IvyInit, IvyStart      # grab Ivy functions
 from time import sleep                                              # sleep = happiness
+from signal import signal, SIGINT, SIGTERM                          # grab signal functions
 from config import ivy_bus, null_cb                                 # grab ivy variables
+
+running = True
 
 
 def sendData():
-    while(1):
+    while running:
         # for test only
         #IvySendMsg("FCULATERAL Mode=SelectedHeading Val=50")
         #IvySendMsg("FCULATERAL Mode=SelectedTrack Val=50")
@@ -16,12 +20,19 @@ def sendData():
         IvySendMsg("FGS FgsPt x=120 y=10")
         IvySendMsg("FGS FgsCap cap=50")
         sleep(10)
+
+
+def stop(*a):
+    global running
+    running = False
     IvyStop()
 
 
 def main():
-    app_name = "Sender"
-    IvyInit(app_name, app_name + " is ready to send!", 0, null_cb, null_cb)
+    signal(SIGINT, stop)
+    signal(SIGTERM, stop)
+
+    IvyInit("Sender", "Sender is ready to send!", 0, null_cb, null_cb)
     IvyStart(ivy_bus)
     sleep(1.0)
     # send AP LAT data
