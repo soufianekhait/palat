@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 from ivy.std_api import IvyInit, IvyStart, IvyBindMsg, IvyMainLoop, IvySendMsg  # grab Ivy functions
 from config import DEG2RAD, null_cb, ivy_bus, TAUPHI, TAUPSI, TAUEY, g          # import constants
 from math import asin, atan2, sin, cos, pi, sqrt                                # grab math function
@@ -149,8 +150,7 @@ def computeRollRate(**modes):
 
 
 def main():
-    app_name = "Receiver"
-    IvyInit(app_name, app_name + " is ready", 0, null_cb, null_cb)
+    IvyInit("Receiver", "Receiver is ready", 0, null_cb, null_cb)
     IvyStart(ivy_bus)
 
     IvyBindMsg(getFCUMode, r"^FCULATERAL Mode=(\w+) Val=(\d+)")
