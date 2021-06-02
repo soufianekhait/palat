@@ -3,7 +3,7 @@ from ivy.std_api import IvyInit, IvyStart, IvyBindMsg, IvyMainLoop, IvySendMsg  
 from config import DEG2RAD, null_cb, ivy_bus, TAUPHI, TAUPSI, TAUEY, g          # import constants
 from math import asin, atan2, sin, cos, pi, sqrt                                # grab math function
 
-# init all variables to zero
+# Default mode is Managed mode
 recorded_data = {"FCU": {"Mode": "Managed", "ModeValue": 0},
                  "FGS": {"trueHeading": 0, "Point": {"x": 0, "y": 0}},
                  "StateVector": {"x": 0, "y": 0, "z": 0, "Vp": 118.3222, "fpa": 0, "psi": 0, "phi": 0},
