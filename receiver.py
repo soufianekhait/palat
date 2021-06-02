@@ -3,10 +3,10 @@ from config import DEG2RAD, null_cb, ivy_bus, TAUPHI, TAUPSI, TAUEY, g          
 from math import asin, atan2, sin, cos, pi, sqrt                                # grab math function
 
 # init all variables to zero
-recorded_data = {"FCU": {"Mode": "", "ModeValue": 0},
+recorded_data = {"FCU": {"Mode": "Managed", "ModeValue": 0},
                  "FGS": {"trueHeading": 0, "Point": {"x": 0, "y": 0}},
-                 "StateVector": {"x": 0, "y": 0, "z": 0, "Vp": 200, "fpa": 0, "psi": 0, "phi": 0},
-                 "Wind": {"Speed": 0, "Dir": 0}, "RollRate": {"Min": 0, "Max": 0}, "MagneticDec": 0}
+                 "StateVector": {"x": 0, "y": 0, "z": 0, "Vp": 118.3222, "fpa": 0, "psi": 0, "phi": 0},
+                 "Wind": {"Speed": 10, "Dir": 200}, "RollRate": {"Min": 0, "Max": 0}, "MagneticDec": 0}
 
 # variables of interest
 v = float(recorded_data["StateVector"]["Vp"])           # speed m/s
@@ -22,7 +22,7 @@ yDot = v * sin(hdg) * cos(fpa) + windSpeed * sin(windDir + pi)
 
 # aircraft track, wind effect and Ground Speed
 acTrack = atan2(yDot, xDot)
-windEffect = asin(windSpeed * sin((acTrack - windDir)/v*cos(fpa)))
+windEffect = asin(sin(windSpeed*(acTrack - windDir)/v*cos(fpa)))
 Gs = sqrt(xDot**2 + yDot**2)
 
 
