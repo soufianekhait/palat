@@ -1,6 +1,6 @@
-from ivy.std_api import IvySendMsg, IvyStop, IvyInit, IvyStart
-from time import sleep
-from config import ivy_bus, null_cb
+from ivy.std_api import IvySendMsg, IvyStop, IvyInit, IvyStart      # grab Ivy functions
+from time import sleep                                              # sleep = happiness
+from config import ivy_bus, null_cb                                 # grab ivy variables
 
 
 def sendData():

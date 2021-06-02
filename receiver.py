@@ -1,6 +1,6 @@
-from ivy.std_api import IvyInit, IvyStart, IvyBindMsg, IvyMainLoop, IvySendMsg
-from config import DEG2RAD, null_cb, ivy_bus, TAUPHI, TAUPSI, TAUEY, g         # global variables
-from math import asin, atan2, sin, cos, pi, sqrt    # grab ain function
+from ivy.std_api import IvyInit, IvyStart, IvyBindMsg, IvyMainLoop, IvySendMsg  # grab Ivy functions
+from config import DEG2RAD, null_cb, ivy_bus, TAUPHI, TAUPSI, TAUEY, g          # import constants
+from math import asin, atan2, sin, cos, pi, sqrt                                # grab math function
 
 # init all variables to zero
 recorded_data = {"FCU": {"Mode": "", "ModeValue": 0},
@@ -16,16 +16,17 @@ phi = float(recorded_data["StateVector"]["phi"])        # bank angle in radian
 windSpeed = int(recorded_data["Wind"]["Speed"])         # Wind speed
 windDir = int(recorded_data["Wind"]["Dir"])             # Wind direction
 
-# derivatives of aiaft position
+# derivatives of aircraft position
 xDot = v * cos(hdg) * cos(fpa) + windSpeed * cos(windDir + pi)
 yDot = v * sin(hdg) * cos(fpa) + windSpeed * sin(windDir + pi)
 
-# Aiaft track, wind effect and Ground Speed
+# aircraft track, wind effect and Ground Speed
 acTrack = atan2(yDot, xDot)
 windEffect = asin(windSpeed * sin((acTrack - windDir)/v*cos(fpa)))
 Gs = sqrt(xDot**2 + yDot**2)
 
 
+# Get current mode sent via Flight Control Unit
 def getFCUMode(agent, *data):
     global recorded_data
     recorded_data["FCU"]["Mode"] = data[0]
@@ -35,12 +36,17 @@ def getFCUMode(agent, *data):
     print("P sent with value {}".format(p))
 
 
+# Get aircraft state
 def getStateVector(agent, *data):
     global recorded_data
     for key, value in zip(recorded_data["StateVector"].keys(), data):
         recorded_data["StateVector"][key] = value
 
 
+"""
+    Get True Heading: sent by the Flight Guidance System
+    Compute Roll Rate when receiving a heading
+"""
 def getFGSTrueHeading(agent, *data):
     global recorded_data
     recorded_data["FGS"]["trueHeading"] = int(data[0])
@@ -49,29 +55,34 @@ def getFGSTrueHeading(agent, *data):
     print("P sent with value {}".format(p))
     
 
+# Get Point: sent by the Flight Guidance System
 def getFGSPoint(agent, *data):
     global recorded_data
     recorded_data["FGS"]["Point"]["x"] = int(data[0])
     recorded_data["FGS"]["Point"]["y"] = int(data[1])
 
 
+# Get current Wind speed and Wind direction
 def getWind(agent, *data):
     global recorded_data
     recorded_data["Wind"]["Speed"] = int(data[0])
     recorded_data["Wind"]["Dir"] = int(data[1])
 
 
+# Get Magnetic Declinaison
 def getMagneticDeclinaison(agent, *data):
     global recorded_data
     recorded_data["MagneticDec"] = float(data[0])
 
 
+# Get Min and Max roll rate
 def getRollRate(agent, *data):
     global recorded_data
     recorded_data["RollRate"]["Min"] = float(data[1])
     recorded_data["RollRate"]["Max"] = float(data[0])
 
 
+# Check mode and then send computed data to get the roll rate
 def sendRollRate():
     # check if Mode is Managed
     if recorded_data["FCU"]["Mode"] == "Managed":
