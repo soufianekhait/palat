@@ -1,7 +1,7 @@
 from numpy import pi
 
 # bus configuration
-ivy_bus = "127.255.255.255:2010"
+ivy_bus = "127.0.0.1:1999"
 null_cb = lambda *a: None
 
 
