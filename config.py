@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 from numpy import pi
 
 # bus configuration
