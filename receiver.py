@@ -7,7 +7,7 @@ from math import asin, atan2, sin, cos, pi, sqrt                                
 recorded_data = {"FCU": {"Mode": "Managed", "ModeValue": 0},
                  "FGS": {"trueHeading": 0, "Point": {"x": 0, "y": 0}},
                  "StateVector": {"x": 0, "y": 0, "z": 0, "Vp": 118.3222, "fpa": 0, "psi": 0, "phi": 0},
-                 "Wind": {"Speed": 10, "Dir": 200}, "RollRate": {"Min": 0, "Max": 0}, "MagneticDec": 0}
+                 "Wind": {"Speed": 10, "Dir": 200}, "RollRate": {"Min": 0, "Max": 0}, "MagneticDec": 0, "Timer": 0}
 
 # variables of interest
 v = float(recorded_data["StateVector"]["Vp"])           # speed m/s
@@ -34,7 +34,7 @@ def getFCUMode(agent, *data):
     recorded_data["FCU"]["ModeValue"] = int(data[1])
     p = sendRollRate()
     IvySendMsg("APLAT p={}".format(p))
-    print("P sent with value {}".format(p))
+    print("Timer: {} | P sent with value {}".format(recorded_data["Timer"], p))
 
 
 # Get aircraft state
@@ -53,8 +53,8 @@ def getFGSTrueHeading(agent, *data):
     recorded_data["FGS"]["trueHeading"] = int(data[0])
     p = sendRollRate()
     IvySendMsg("APLAT p={}".format(p))
-    print("P sent with value {}".format(p))
-    
+    print("Timer: {} | P sent with value {}".format(recorded_data["Timer"], p))
+
 
 # Get Point: sent by the Flight Guidance System
 def getFGSPoint(agent, *data):
@@ -149,6 +149,11 @@ def computeRollRate(**modes):
                 return checkBoundaries(((v*setDelta(hdgC, hdg)/(TAUPSI*g)) - phi) / TAUPHI)
 
 
+def getTime(agent, *data):
+    global recorded_data
+    recorded_data["Timer"] = float(data[0])
+
+
 def main():
     IvyInit("Receiver", "Receiver is ready", 0, null_cb, null_cb)
     IvyStart(ivy_bus)
@@ -160,6 +165,7 @@ def main():
     IvyBindMsg(getRollRate, r"^RollRateLim  MaxRollRate=(\d+) / MinRollRate=(\d+)")
     IvyBindMsg(getFGSPoint, r"^FGS FgsPt x=(\d+) y=(\d+)")
     IvyBindMsg(getFGSTrueHeading, r"^FGS FgsCap cap=(\d+)")
+    IvyBindMsg(getTime, r"^Time t=(\d+)s")
 
     IvyMainLoop()
 
