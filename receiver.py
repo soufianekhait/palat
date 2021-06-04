@@ -152,6 +152,9 @@ def computeRollRate(**modes):
 def getTime(agent, *data):
     global recorded_data
     recorded_data["Timer"] = float(data[0])
+    p = sendRollRate()
+    IvySendMsg("APLAT p={}".format(p))
+    print("Timer: {} | P sent with value {}".format(recorded_data["Timer"], p))
 
 
 def main():
